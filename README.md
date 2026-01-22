@@ -576,6 +576,7 @@ http://localhost
 ```
 
 Deberías ver:
+
 - ✅ "Conexión a MySQL correcta"
 - ✅ Lista de tareas (vacía inicialmente)
 - ✅ Información del sistema (PHP version, hostname, etc.)
@@ -706,11 +707,11 @@ docker compose exec nginx ping app
 
 ---
 
-## 🚀 Próximos pasos
+## Próximos pasos
 
 1. **Mejorar la app:** Añade más endpoints a la API
 2. **Persistencia:** Crea dumps SQL para inicializar la BD
-3. **CI/CD:** Integra GitHub Actions para automatizar builds
+3. **CI/CD automatizado:** Ver [CICD_AUTOMATIZADO.md](CICD_AUTOMATIZADO.md) para despliegues automáticos con GitHub Actions
 4. **Registry:** Sube la imagen a Docker Hub o GitHub Container Registry
 5. **Producción:** Usa `docker-compose.prod.yml` con variables secretas
 

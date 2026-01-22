@@ -52,6 +52,7 @@ php-deployment/
 |---------|-----------|----------|
 | [README.md](README.md) | Guía completa paso a paso | 2-3 horas |
 | [QUICKSTART.md](QUICKSTART.md) | Versión rápida para empezar rápido | 15 minutos |
+| [CICD_AUTOMATIZADO.md](CICD_AUTOMATIZADO.md) | **NUEVO:** Flujo CI/CD con GitHub Actions | 30 minutos |
 | [TROUBLESHOOTING.md](TROUBLESHOOTING.md) | Solución de problemas comunes | Bajo demanda |
 | [EXTENSIONES.md](EXTENSIONES.md) | 10 actividades para extender | 1-2 horas c/u |
 | [SOLUCIONARIO.md](SOLUCIONARIO.md) | Soluciones a actividades bonus | Referencia |
