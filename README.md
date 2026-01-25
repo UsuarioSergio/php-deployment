@@ -700,6 +700,12 @@ Notas:
 - Si `docker compose` no existe, instala el plugin v2 (ver Requisitos al inicio).
 - En caso de fallo, el script muestra comandos de diagnóstico (logs, reinicio limpio, etc.).
 
+### Acceso (puertos)
+
+- Dentro de la VM: http://localhost:8083 (por defecto `nginx` expone 8083→80 en [docker-compose.prod.yml](docker-compose.prod.yml)); HTTPS: https://localhost:443
+- Desde el host (VirtualBox NAT): si la regla es 8081→8083, usa http://localhost:8081; para HTTPS con 8443→443, usa https://localhost:8443
+- Alternativa: si prefieres usar 80 en la VM, cambia el mapeo a `"80:80"` en [docker-compose.prod.yml](docker-compose.prod.yml) o ajusta la regla NAT a 8081→80
+
 ---
 
 ## 🎓 Conceptos aprendidos

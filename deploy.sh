@@ -158,14 +158,21 @@ docker compose -f docker-compose.prod.yml ps
 
 echo ""
 
-# Test de conectividad
+# Test de conectividad (prueba varios puertos comunes)
 info "Probando conectividad..."
-if curl -f http://localhost/health.php > /dev/null 2>&1; then
-    success "✅ App responde correctamente"
-elif curl -f http://localhost/ > /dev/null 2>&1; then
+APP_HTTP_PORT=${APP_HTTP_PORT:-8083}
+if curl -fsS http://localhost:${APP_HTTP_PORT}/health.php >/dev/null 2>&1 || \
+   curl -fsS http://localhost:${APP_HTTP_PORT}/ >/dev/null 2>&1 || \
+   curl -fsS http://localhost/health.php >/dev/null 2>&1 || \
+   curl -fsS http://localhost/ >/dev/null 2>&1 || \
+   curl -kfsS https://localhost:443/ >/dev/null 2>&1 ; then
     success "✅ App responde correctamente"
 else
     warning "⚠️  App no responde (podría necesitar más tiempo para iniciar)"
+    echo "Sugerencias:"
+    echo "  - Dentro de la VM: prueba http://localhost:${APP_HTTP_PORT}"
+    echo "  - Desde el host (VirtualBox NAT): si tienes 8081->8083, usa http://localhost:8081"
+    echo "  - Ver logs nginx: docker compose -f docker-compose.prod.yml logs nginx"
 fi
 
 echo ""
