@@ -23,10 +23,10 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost/health.php"]
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 3
-      start_period: 40s
+      start_period: 20s
     logging:
       driver: "json-file"
       options:
@@ -55,10 +55,10 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "sh", "-c", "test -S /run/php-fpm.sock || exit 1"]
-      interval: 30s
-      timeout: 10s
+      interval: 10s
+      timeout: 5s
       retries: 5
-      start_period: 60s
+      start_period: 30s
     logging:
       driver: "json-file"
       options:
@@ -84,10 +84,10 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 5s
+      interval: 3s
+      timeout: 3s
       retries: 10
-      start_period: 60s
+      start_period: 40s
     logging:
       driver: "json-file"
       options:

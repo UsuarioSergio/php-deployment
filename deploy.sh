@@ -137,15 +137,16 @@ echo ""
 
 # Esperar a que estén healthy
 info "Esperando a que los servicios estén listos..."
-for i in {1..30}; do
-    if docker compose -f docker-compose.prod.yml ps | grep -q "healthy"; then
-        success "Servicios en estado healthy"
+for i in {1..60}; do
+    HEALTHY_COUNT=$(docker compose -f docker-compose.prod.yml ps --format json 2>/dev/null | grep -c '"Health":"healthy"' || echo 0)
+    if [ "$HEALTHY_COUNT" -ge 2 ]; then
+        success "Servicios en estado healthy ($HEALTHY_COUNT/3)"
         break
     fi
-    if [ $i -eq 30 ]; then
-        warning "Servicios tardaron más, pero continuando..."
+    if [ $i -eq 60 ]; then
+        warning "Servicios tardaron más de lo esperado, verifica logs"
     fi
-    echo -n "."
+    [ $((i % 5)) -eq 0 ] && echo -n "." || true
     sleep 1
 done
 
