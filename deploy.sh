@@ -4,9 +4,15 @@
 
 set -e
 
+# Opcion 1 : ghcr.io (GitHub Container Registry)
 REGISTRY="ghcr.io"
-REPO="${GITHUB_REPOSITORY:-tu-usuario/tu-repo}"
+REPO="${GITHUB_REPOSITORY:-danielmartinan/php-deployment}"
 IMAGE_NAME="$REGISTRY/$REPO/php-app"
+
+# Opción 2: Docker Hub
+# REGISTRY="${REGISTRY:-docker.io}"
+# DOCKERHUB_USER="${DOCKERHUB_USER:-$(read -p 'Docker Hub username: ' -r; echo $REPLY)}"
+# IMAGE_NAME="$DOCKERHUB_USER/php-app"
 
 # Colores
 RED='\033[0;31m'
@@ -85,7 +91,7 @@ echo ""
 if [ -d "backups" ]; then
     info "Haciendo backup de BD..."
     BACKUP_FILE="backups/db_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
-    docker compose -f docker-compose.prod.yml exec -T db mysqldump \
+    docker-compose -f docker-compose.prod.yml exec -T db mysqldump \
         -u "$DB_USER" \
         -p"$DB_PASSWORD" \
         "$DB_DATABASE" | gzip > "$BACKUP_FILE"
@@ -94,23 +100,23 @@ if [ -d "backups" ]; then
 fi
 
 # Detener servicios antiguos (si existen)
-if docker compose -f docker-compose.prod.yml ps | grep -q "php-app"; then
+if docker-compose -f docker-compose.prod.yml ps | grep -q "php-app"; then
     info "Deteniendo servicios antiguos..."
-    docker compose -f docker-compose.prod.yml stop
+    docker-compose -f docker-compose.prod.yml stop
     success "Servicios detenidos"
     echo ""
 fi
 
 # Levantar nuevos servicios
 info "Levantando servicios con nueva imagen..."
-docker compose -f docker-compose.prod.yml up -d
+docker-compose -f docker-compose.prod.yml up -d
 
 echo ""
 
 # Esperar a que estén healthy
 info "Esperando a que los servicios estén listos..."
 for i in {1..30}; do
-    if docker compose -f docker-compose.prod.yml ps | grep -q "healthy"; then
+    if docker-compose -f docker-compose.prod.yml ps | grep -q "healthy"; then
         success "Servicios en estado healthy"
         break
     fi
@@ -126,7 +132,7 @@ echo ""
 
 # Verificación
 info "Verificando deployment..."
-docker compose -f docker-compose.prod.yml ps
+docker-compose -f docker-compose.prod.yml ps
 
 echo ""
 
@@ -153,10 +159,10 @@ echo "  BD:       $DB_DATABASE"
 echo "  Usuario:  $DB_USER"
 echo ""
 echo "Comandos útiles:"
-echo "  Ver logs:       docker compose -f docker-compose.prod.yml logs -f"
-echo "  Ver estado:     docker compose -f docker-compose.prod.yml ps"
-echo "  Entrar en bash: docker compose -f docker-compose.prod.yml exec app bash"
-echo "  Detener:        docker compose -f docker-compose.prod.yml down"
+echo "  Ver logs:       docker-compose -f docker-compose.prod.yml logs -f"
+echo "  Ver estado:     docker-compose -f docker-compose.prod.yml ps"
+echo "  Entrar en bash: docker-compose -f docker-compose.prod.yml exec app bash"
+echo "  Detener:        docker-compose -f docker-compose.prod.yml down"
 echo ""
 echo "Acceso:"
 echo "  URL: http://localhost (o tu dominio)"
@@ -168,4 +174,4 @@ if [ ! -L "deploy" ]; then
     success "Próximas veces puedes ejecutar: ./deploy"
 fi
 
-echo "🎉 ¡Despliegue exitoso!"
+echo "¡Despliegue exitoso!"

@@ -22,8 +22,6 @@ En esta actividad aprenderás a:
 
 **2-3 horas**
 
----
-
 ## 🎯 Paso 0: Requisitos previos
 
 Asegúrate de tener instalado:
@@ -38,9 +36,9 @@ docker compose version
 # Output: Docker Compose version v2.0+
 ```
 
-Si no los tienes, instala [Docker Desktop](https://www.docker.com/products/docker-desktop).
+Si no los tienes, instala [Docker Desktop](https://www.docker.com/products/docker-desktop) en Windows/Mac o sigue las instrucciones en [Docker Engine](https://docs.docker.com/engine/install/) para Linux.
 
----
+Para esta práctica, podemos usar nuestra máquina virtual "Ubuntu-Docker".
 
 ## 📁 Paso 1: Estructura del proyecto
 
@@ -66,8 +64,6 @@ php-deployment/
 mkdir -p php-deployment/{app/config,nginx,docker}
 cd php-deployment
 ```
-
----
 
 ## 💾 Paso 2: Crear la aplicación PHP
 

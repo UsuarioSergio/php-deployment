@@ -75,7 +75,7 @@ echo ""
 
 # Levantar contenedores
 info "Levantando contenedores..."
-docker compose up -d --build
+docker-compose up -d --build
 
 echo ""
 
