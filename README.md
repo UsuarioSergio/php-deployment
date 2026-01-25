@@ -38,6 +38,14 @@ docker compose version
 
 Si no los tienes, instala [Docker Desktop](https://www.docker.com/products/docker-desktop) en Windows/Mac o sigue las instrucciones en [Docker Engine](https://docs.docker.com/engine/install/) para Linux.
 
+Nota sobre Docker Compose v2 (Linux): si el comando `docker compose` no existe, instala el plugin oficial:
+
+```bash
+sudo apt update
+sudo apt install -y docker-compose-plugin
+docker compose version
+```
+
 Para esta práctica, podemos usar nuestra máquina virtual "Ubuntu-Docker".
 
 ## Paso 1: Estructura del proyecto
@@ -427,7 +435,7 @@ services:
       - php-network
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "php-fpm7", "-t"]
+            test: ["CMD", "sh", "-c", "php-fpm -t || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 3
@@ -665,6 +673,34 @@ docker compose exec nginx ping app
 - [ ] Las tareas persisten después de recargar
 - [ ] Los logs son accesibles (`docker compose logs`)
 - [ ] Puedes entrar en los contenedores (`docker compose exec`)
+
+---
+
+## 🚀 Despliegue en producción (con registry)
+
+Para desplegar en una VM/servidor, usa imágenes publicadas en un registry (GHCR/Docker Hub) con `docker-compose.prod.yml` y el script `deploy.sh`.
+
+Requisitos:
+
+```bash
+# Variables de entorno de producción
+cp .env.example .env.prod
+nano .env.prod  # Ajusta DB_PASSWORD, DB_ROOT_PASSWORD, etc.
+```
+
+Despliegue (GHCR por defecto en deploy.sh):
+
+```bash
+bash deploy.sh
+# El script verifica Docker + Docker Compose v2 y hace el despliegue con docker compose
+```
+
+Notas:
+- Si usas Docker Hub, ajusta la sección de Docker Hub en `deploy.sh` (comentada) y define usuario/token.
+- Si `docker compose` no existe, instala el plugin v2 (ver Requisitos al inicio).
+- En caso de fallo, el script muestra comandos de diagnóstico (logs, reinicio limpio, etc.).
+
+---
 
 ## 🎓 Conceptos aprendidos
 

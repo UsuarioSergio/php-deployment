@@ -4,6 +4,31 @@
 
 set -e
 
+# --- Helpers: preflight + troubleshooting (Compose v2) ---
+ensure_compose_v2() {
+    if docker compose version >/dev/null 2>&1; then
+        return 0
+    fi
+    echo -e "\n\033[0;31m❌ Docker Compose v2 no disponible (comando 'docker compose').\033[0m"
+    echo "\nSolución rápida (Ubuntu):"
+    echo "  sudo apt update && sudo apt install -y docker-compose-plugin"
+    echo "\nVerifica luego con:  docker compose version"
+    echo "\nAlternativa temporal: usa 'docker-compose' (v1), pero puede fallar con Docker reciente."
+    exit 1
+}
+
+on_error() {
+    echo -e "\n\033[0;31m❌ Error durante el despliegue\033[0m"
+    echo "Diagnóstico sugerido:"
+    echo "  - Ver estado:        docker compose -f docker-compose.prod.yml ps"
+    echo "  - Logs app:          docker compose -f docker-compose.prod.yml logs app"
+    echo "  - Logs nginx:        docker compose -f docker-compose.prod.yml logs nginx"
+    echo "  - Logs db:           docker compose -f docker-compose.prod.yml logs db"
+    echo "  - Reinicio limpio:   docker compose -f docker-compose.prod.yml down --remove-orphans && \" \
+                docker compose -f docker-compose.prod.yml up -d --pull always --force-recreate"
+}
+trap on_error ERR
+
 # Opcion 1 : ghcr.io (GitHub Container Registry)
 REGISTRY="ghcr.io"
 REPO="${GITHUB_REPOSITORY:-danielmartinan/php-deployment}"
@@ -42,13 +67,10 @@ success "Docker disponible ($(docker --version))"
 
 echo ""
 
-# Verificar docker-compose
-info "Verificando docker-compose..."
-if ! command -v docker-compose &> /dev/null; then
-    error "docker-compose no está instalado"
-    exit 1
-fi
-success "docker-compose disponible"
+# Verificar Docker Compose v2
+info "Verificando Docker Compose v2..."
+ensure_compose_v2
+success "Docker Compose v2 disponible ($(docker compose version))"
 
 echo ""
 
@@ -91,7 +113,7 @@ echo ""
 if [ -d "backups" ]; then
     info "Haciendo backup de BD..."
     BACKUP_FILE="backups/db_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
-    docker-compose -f docker-compose.prod.yml exec -T db mysqldump \
+    docker compose -f docker-compose.prod.yml exec -T db mysqldump \
         -u "$DB_USER" \
         -p"$DB_PASSWORD" \
         "$DB_DATABASE" | gzip > "$BACKUP_FILE"
@@ -100,23 +122,23 @@ if [ -d "backups" ]; then
 fi
 
 # Detener servicios antiguos (si existen)
-if docker-compose -f docker-compose.prod.yml ps | grep -q "php-app"; then
+if docker compose -f docker-compose.prod.yml ps | grep -q "php-app"; then
     info "Deteniendo servicios antiguos..."
-    docker-compose -f docker-compose.prod.yml stop
+    docker compose -f docker-compose.prod.yml stop
     success "Servicios detenidos"
     echo ""
 fi
 
 # Levantar nuevos servicios
 info "Levantando servicios con nueva imagen..."
-docker-compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml up -d
 
 echo ""
 
 # Esperar a que estén healthy
 info "Esperando a que los servicios estén listos..."
 for i in {1..30}; do
-    if docker-compose -f docker-compose.prod.yml ps | grep -q "healthy"; then
+    if docker compose -f docker-compose.prod.yml ps | grep -q "healthy"; then
         success "Servicios en estado healthy"
         break
     fi
@@ -132,7 +154,7 @@ echo ""
 
 # Verificación
 info "Verificando deployment..."
-docker-compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml ps
 
 echo ""
 
@@ -159,10 +181,10 @@ echo "  BD:       $DB_DATABASE"
 echo "  Usuario:  $DB_USER"
 echo ""
 echo "Comandos útiles:"
-echo "  Ver logs:       docker-compose -f docker-compose.prod.yml logs -f"
-echo "  Ver estado:     docker-compose -f docker-compose.prod.yml ps"
-echo "  Entrar en bash: docker-compose -f docker-compose.prod.yml exec app bash"
-echo "  Detener:        docker-compose -f docker-compose.prod.yml down"
+echo "  Ver logs:       docker compose -f docker-compose.prod.yml logs -f"
+echo "  Ver estado:     docker compose -f docker-compose.prod.yml ps"
+echo "  Entrar en bash: docker compose -f docker-compose.prod.yml exec app bash"
+echo "  Detener:        docker compose -f docker-compose.prod.yml down"
 echo ""
 echo "Acceso:"
 echo "  URL: http://localhost (o tu dominio)"

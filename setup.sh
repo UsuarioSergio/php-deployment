@@ -4,6 +4,30 @@
 
 set -e  # Exit on error
 
+# --- Helpers: preflight + troubleshooting (Compose v2) ---
+ensure_compose_v2() {
+    if docker compose version >/dev/null 2>&1; then
+        return 0
+    fi
+    echo -e "\n\033[0;31m❌ Docker Compose v2 no disponible (comando 'docker compose').\033[0m"
+    echo "\nSolución rápida (Ubuntu):"
+    echo "  sudo apt update && sudo apt install -y docker-compose-plugin"
+    echo "\nVerifica luego con:  docker compose version"
+    echo "\nAlternativa temporal: usa 'docker-compose' (v1), pero puede fallar con Docker reciente."
+    exit 1
+}
+
+on_error() {
+    echo -e "\n\033[0;31m❌ Error durante el setup\033[0m"
+    echo "Diagnóstico sugerido:"
+    echo "  - Ver estado:        docker compose ps"
+    echo "  - Logs app:          docker compose logs app"
+    echo "  - Logs nginx:        docker compose logs nginx"
+    echo "  - Logs db:           docker compose logs db"
+    echo "  - Reinicio limpio:   docker compose down --remove-orphans && docker compose up -d --build"
+}
+trap on_error ERR
+
 echo "======================================"
 echo "📦 PHP Deployment - Setup Script"
 echo "======================================"
@@ -42,14 +66,11 @@ if ! command -v docker &> /dev/null; then
     exit 1
 fi
 
-if ! command -v docker-compose &> /dev/null; then
-    error "Docker Compose no está instalado"
-    echo "Instala Docker Compose junto con Docker Desktop"
-    exit 1
-fi
-
 success "Docker instalado ($(docker --version))"
-success "Docker Compose instalado ($(docker compose version))"
+
+info "Verificando Docker Compose v2..."
+ensure_compose_v2
+success "Docker Compose v2 instalado ($(docker compose version))"
 
 echo ""
 
@@ -75,12 +96,12 @@ echo ""
 
 # Levantar contenedores
 info "Levantando contenedores..."
-docker-compose up -d --build
+docker compose up -d --build
 
 echo ""
 
 # Esperar a que MySQL esté listo
-info "Esperando a que MySQL inicialice (esto puede tardar 30 segundos)..."
+info "Esperando a que MySQL inicialice (esto puede tardar 30-90 segundos)..."
 for i in {1..30}; do
     if docker compose exec -T db mysql -u appuser -p"${DB_PASSWORD:-apppassword}" -e "SELECT 1" todoapp > /dev/null 2>&1; then
         success "MySQL está listo"
