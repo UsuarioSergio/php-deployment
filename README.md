@@ -20,7 +20,7 @@ En esta actividad aprenderás a:
 
 ## ⏱️ Duración estimada
 
-**2-3 horas**
+**2-3 horas**, dependiendo de tu experiencia previa con Docker y PHP.
 
 ## 🎯 Paso 0: Requisitos previos
 
@@ -40,11 +40,11 @@ Si no los tienes, instala [Docker Desktop](https://www.docker.com/products/docke
 
 Para esta práctica, podemos usar nuestra máquina virtual "Ubuntu-Docker".
 
-## 📁 Paso 1: Estructura del proyecto
+## Paso 1: Estructura del proyecto
 
 Crea la siguiente estructura de directorios:
 
-```
+```plaintext
 php-deployment/
 ├── app/
 │   ├── index.php          # Página principal
@@ -65,7 +65,7 @@ mkdir -p php-deployment/{app/config,nginx,docker}
 cd php-deployment
 ```
 
-## 💾 Paso 2: Crear la aplicación PHP
+## Paso 2: Crear la aplicación PHP
 
 ### 2.1 Archivo: `app/config/database.php`
 
@@ -263,9 +263,7 @@ try {
 ?>
 ```
 
----
-
-## 🐳 Paso 3: Dockerfile para PHP-FPM
+## Paso 3: Dockerfile para PHP-FPM
 
 Crea el archivo `docker/Dockerfile`:
 
@@ -313,9 +311,7 @@ EXPOSE 9000
 CMD ["php-fpm"]
 ```
 
----
-
-## ⚙️ Paso 4: Configuración de Nginx
+## Paso 4: Configuración de Nginx
 
 Crea el archivo `nginx/nginx.conf`:
 
@@ -378,9 +374,7 @@ server {
 }
 ```
 
----
-
-## 📋 Paso 5: Docker Compose
+## Paso 5: Docker Compose
 
 Crea el archivo `docker-compose.yml` en la raíz del proyecto:
 
@@ -477,9 +471,7 @@ networks:
     driver: bridge
 ```
 
----
-
-## 🔐 Paso 6: Archivo de variables de entorno
+## Paso 6: Archivo de variables de entorno
 
 Crea el archivo `.env.example`:
 
@@ -500,13 +492,11 @@ Luego copia para uso local:
 cp .env.example .env
 ```
 
----
+## Paso 7: .dockerignore
 
-## 🚫 Paso 7: .dockerignore
+Crea el archivo `.dockerignore`, que nos permite evitar copiar archivos innecesarios al contexto de construcción:
 
-Crea el archivo `.dockerignore`:
-
-```
+```plaintext
 .git
 .github
 .gitignore
@@ -520,9 +510,7 @@ docker-compose.*.yml
 node_modules
 ```
 
----
-
-## 🚀 Paso 8: Desplegar y probar
+## Paso 8: Desplegar y probar
 
 ### 8.1 Construir y levantar los contenedores
 
@@ -559,9 +547,7 @@ docker compose logs nginx
 docker compose logs db
 ```
 
----
-
-## 🧪 Paso 9: Probar la aplicación
+## Paso 9: Probar la aplicación
 
 ### 9.1 Acceder a la aplicación web
 
@@ -605,9 +591,7 @@ docker compose exec db mysql -u appuser -p todoapp
 mysql> SELECT * FROM todos;
 ```
 
----
-
-## 🔧 Paso 10: Comandos útiles
+## Paso 10: Comandos útiles
 
 ```bash
 # Ver logs en vivo
@@ -634,9 +618,7 @@ docker compose build --no-cache
 docker compose stats
 ```
 
----
-
-## 📊 Paso 11: Debugging
+## Paso 11: Debugging
 
 ### Problema: "Connection refused"
 
@@ -674,8 +656,6 @@ docker compose exec app php-fpm -t
 docker compose exec nginx ping app
 ```
 
----
-
 ## ✅ Paso 12: Checklist de éxito
 
 - [ ] Los tres contenedores están corriendo (`docker compose ps`)
@@ -685,8 +665,6 @@ docker compose exec nginx ping app
 - [ ] Las tareas persisten después de recargar
 - [ ] Los logs son accesibles (`docker compose logs`)
 - [ ] Puedes entrar en los contenedores (`docker compose exec`)
-
----
 
 ## 🎓 Conceptos aprendidos
 
@@ -701,8 +679,6 @@ docker compose exec nginx ping app
 | **Nginx como reverse proxy** | Enrutamiento entre cliente y PHP-FPM |
 | **Docker Compose** | Orquestación multi-contenedor con `docker-compose.yml` |
 
----
-
 ## Próximos pasos
 
 1. **Mejorar la app:** Añade más endpoints a la API
@@ -711,9 +687,7 @@ docker compose exec nginx ping app
 4. **Registry:** Sube la imagen a Docker Hub o GitHub Container Registry
 5. **Producción:** Usa `docker-compose.prod.yml` con variables secretas
 
----
-
-## 📚 Recursos
+## Recursos
 
 - [Docker Compose Documentation](https://docs.docker.com/compose/)
 - [PHP-FPM Configuration](https://www.php.net/manual/en/install.fpm.configuration.php)
