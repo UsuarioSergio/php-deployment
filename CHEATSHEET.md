@@ -365,7 +365,3 @@ docker compose exec app getent hosts db
 - Las variables de .env se expanden en docker-compose.yml
 - Los cambios en código PHP se ven instantáneamente (volumen)
 - Los cambios en Dockerfile requieren reconstruir la imagen
-
----
-
-**Tip:** Guarda esta página como referencia rápida 📌
