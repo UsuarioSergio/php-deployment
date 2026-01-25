@@ -2,11 +2,19 @@
 // app/config/database.php
 
 class Database {
-    private $host = $_ENV['DB_HOST'] ?? 'localhost';
-    private $db = $_ENV['DB_DATABASE'] ?? 'todoapp';
-    private $user = $_ENV['DB_USER'] ?? 'root';
-    private $pass = $_ENV['DB_PASSWORD'] ?? 'root';
+    private $host;
+    private $db;
+    private $user;
+    private $pass;
     private $pdo;
+
+    public function __construct() {
+        // Read runtime env vars at construction time (PHP 8.2+: property defaults cannot use $_ENV)
+        $this->host = getenv('DB_HOST') ?: 'localhost';
+        $this->db   = getenv('DB_DATABASE') ?: 'todoapp';
+        $this->user = getenv('DB_USER') ?: 'root';
+        $this->pass = getenv('DB_PASSWORD') ?: 'root';
+    }
 
     public function connect() {
         try {
