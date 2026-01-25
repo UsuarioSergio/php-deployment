@@ -674,6 +674,53 @@ docker compose exec nginx ping app
 - [ ] Los logs son accesibles (`docker compose logs`)
 - [ ] Puedes entrar en los contenedores (`docker compose exec`)
 
+### Probar la aplicación
+
+**Ejecutar suite de tests automática:**
+
+```bash
+bash test-api.sh
+# O especificar URL personalizada
+bash test-api.sh http://localhost:8083
+```
+
+El script prueba:
+
+- ✅ Conectividad al servidor
+- ✅ Listar tareas existentes
+- ✅ Añadir nuevas tareas
+- ✅ Marcar como completadas
+- ✅ Eliminar tareas
+- ✅ Verificación de persistencia
+
+**Comandos manuales (API REST):**
+
+```bash
+# Listar todas las tareas
+curl http://localhost:8083/api.php?action=list | jq
+
+# Añadir tarea
+curl -X POST http://localhost:8083/api.php?action=add -d "title=Mi tarea"
+
+# Marcar como completada (ID=1)
+curl -X POST http://localhost:8083/api.php?action=toggle -d "id=1"
+
+# Eliminar tarea (ID=1)
+curl -X POST http://localhost:8083/api.php?action=delete -d "id=1"
+```
+
+**Acceso directo a MySQL:**
+
+```bash
+# Conectar al contenedor de base de datos
+docker compose exec db mysql -u appuser -p
+
+# Dentro de MySQL
+USE todoapp;
+SELECT * FROM todos;
+INSERT INTO todos (title) VALUES ('Tarea desde MySQL');
+```
+
 ---
 
 ## 🚀 Despliegue en producción (con registry)
@@ -710,12 +757,14 @@ Notas:
 ### Operaciones seguras (arrancar/parar)
 
 **Parar el stack (mantiene datos):**
+
 ```bash
 # ✅ SEGURO - Para contenedores, MANTIENE volúmenes y datos de BD
 docker compose -f docker-compose.prod.yml down
 ```
 
 **Arrancar después de down:**
+
 ```bash
 # Levanta servicios con datos intactos
 docker compose -f docker-compose.prod.yml up -d
@@ -731,6 +780,7 @@ docker compose -f docker-compose.prod.yml up -d
 | `down -v` | ⚠️ **BORRA TODO** (volúmenes incluidos) | ❌ Elimina |
 
 **Verificar persistencia de datos:**
+
 ```bash
 # Ver volúmenes
 docker volume ls | grep db_data
