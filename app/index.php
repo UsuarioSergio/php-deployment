@@ -58,7 +58,16 @@
                     echo '<div class="task-list">';
                     foreach ($todos as $todo) {
                         $checked = $todo['completed'] ? '✓' : '○';
-                        echo '<div class="task-item">' . $checked . ' ' . htmlspecialchars($todo['title']) . '</div>';
+                        $buttonLabel = $todo['completed'] ? 'Marcar pendiente' : 'Marcar como realizada';
+                        $buttonClass = $todo['completed'] ? 'button-secondary' : 'button-primary';
+                        echo '<div class="task-item">';
+                        echo '<span style="margin-right:10px;">' . $checked . '</span>';
+                        echo '<span>' . htmlspecialchars($todo['title']) . '</span>';
+                        echo '<form method="POST" action="api.php?action=toggle" style="display:inline; margin-left:12px;">';
+                        echo '<input type="hidden" name="id" value="' . (int)$todo['id'] . '">';
+                        echo '<button type="submit" class="' . $buttonClass . '">' . $buttonLabel . '</button>';
+                        echo '</form>';
+                        echo '</div>';
                     }
                     echo '</div>';
                 }

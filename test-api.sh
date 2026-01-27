@@ -28,11 +28,10 @@ if ! command -v curl &> /dev/null; then
 fi
 
 if ! command -v jq &> /dev/null; then
-    warning "jq no está instalado (salida sin formato)"
-    JQ_CMD="cat"
-else
-    JQ_CMD="jq"
+    error "jq no está instalado. Instálalo con: sudo apt install -y jq"
+    exit 1
 fi
+JQ_CMD="jq"
 
 echo "======================================"
 echo "🧪 TODO App - API Test Suite"
