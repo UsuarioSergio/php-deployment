@@ -37,7 +37,7 @@ services:
   # Aplicación (PHP-FPM) - Producción
   # ==========================================
   app:
-    image: ghcr.io/${GITHUB_REPOSITORY}/php-app:${APP_VERSION:-latest}
+    image: ${APP_IMAGE:-ghcr.io/${GITHUB_REPOSITORY}/php-app:${APP_VERSION:-latest}}
     container_name: php-app-app-prod
     volumes:
       - ./app:/var/www/html:ro
