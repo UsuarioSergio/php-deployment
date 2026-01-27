@@ -46,6 +46,30 @@ sudo apt install -y docker-compose-plugin
 docker compose version
 ```
 
+Si esto tampoco funciona (tienes un error del tipo `E: Unable to locate package docker-compose-plugin`), prueba con:
+
+```bash
+sudo apt remove docker docker-engine docker.io containerd runc
+sudo apt update
+sudo apt install -y ca-certificates curl gnupg
+
+sudo install -m 0755 -d /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt update
+
+sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+
+docker --version
+docker compose version
+```
+
 Para esta práctica, podemos usar nuestra máquina virtual "Ubuntu-Docker".
 
 ## Paso 1: Estructura del proyecto
@@ -727,13 +751,43 @@ INSERT INTO todos (title) VALUES ('Tarea desde MySQL');
 
 Para desplegar en una VM/servidor, usa imágenes publicadas en un registry (GHCR/Docker Hub) con `docker-compose.prod.yml` y el script `deploy.sh`.
 
-Requisitos:
+### Configuración de variables de entorno
+
+**IMPORTANTE:** Antes de desplegar, configura correctamente `.env.prod`:
 
 ```bash
-# Variables de entorno de producción
-cp .env.example .env.prod
-nano .env.prod  # Ajusta DB_PASSWORD, DB_ROOT_PASSWORD, etc.
+# 1. Copiar el ejemplo
+cp .env.prod.example .env.prod
+
+# 2. Editar y configurar TODAS las variables requeridas
+nano .env.prod
 ```
+
+**Variables OBLIGATORIAS que debes configurar:**
+
+```bash
+# GitHub - Formato: usuario/repositorio (SIN ghcr.io/)
+GITHUB_REPOSITORY=danielmartinan/php-deployment
+
+# Versión de la imagen a desplegar
+APP_VERSION=latest
+
+# Contraseñas MySQL - ¡CAMBIAR EN PRODUCCIÓN!
+DB_DATABASE=todoapp
+DB_USER=appuser
+DB_PASSWORD=tu_password_seguro_aqui
+DB_ROOT_PASSWORD=tu_root_password_seguro_aqui
+
+# Nginx (opcional)
+NGINX_HOST=localhost
+```
+
+⚠️ **Si no defines `GITHUB_REPOSITORY` o `DB_ROOT_PASSWORD`, el despliegue fallará con:**
+
+- `invalid reference format` (por imagen `ghcr.io//php-app:latest`)
+- MySQL no arrancará correctamente
+
+### Ejecutar despliegue
 
 Despliegue (GHCR por defecto en deploy.sh):
 
@@ -760,14 +814,14 @@ Notas:
 
 ```bash
 # ✅ SEGURO - Para contenedores, MANTIENE volúmenes y datos de BD
-docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml --env-file .env.prod down
 ```
 
 **Arrancar después de down:**
 
 ```bash
 # Levanta servicios con datos intactos
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
 
 **Otros comandos útiles:**
@@ -786,12 +840,14 @@ docker compose -f docker-compose.prod.yml up -d
 docker volume ls | grep db_data
 
 # Después de 'down', volumen sigue existiendo
-docker compose -f docker-compose.prod.yml down
+docker compose -f docker-compose.prod.yml --env-file .env.prod down
 docker volume ls | grep db_data  # Aún presente
 
 # Datos se restauran al hacer 'up'
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 ```
+
+⚠️ **Nota importante:** Siempre usa `--env-file .env.prod` al ejecutar comandos manuales de Docker Compose en producción, para que las variables se carguen correctamente.
 
 **Regla de oro:** Nunca uses `-v` o `--volumes` en producción a menos que quieras **borrar todos los datos**.
 

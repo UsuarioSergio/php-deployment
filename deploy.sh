@@ -20,12 +20,12 @@ ensure_compose_v2() {
 on_error() {
     echo -e "\n\033[0;31m❌ Error durante el despliegue\033[0m"
     echo "Diagnóstico sugerido:"
-    echo "  - Ver estado:        docker compose -f docker-compose.prod.yml ps"
-    echo "  - Logs app:          docker compose -f docker-compose.prod.yml logs app"
-    echo "  - Logs nginx:        docker compose -f docker-compose.prod.yml logs nginx"
-    echo "  - Logs db:           docker compose -f docker-compose.prod.yml logs db"
-    echo "  - Reinicio limpio:   docker compose -f docker-compose.prod.yml down --remove-orphans && \" \
-                docker compose -f docker-compose.prod.yml up -d --pull always --force-recreate"
+    echo "  - Ver estado:        docker compose -f docker-compose.prod.yml --env-file .env.prod ps"
+    echo "  - Logs app:          docker compose -f docker-compose.prod.yml --env-file .env.prod logs app"
+    echo "  - Logs nginx:        docker compose -f docker-compose.prod.yml --env-file .env.prod logs nginx"
+    echo "  - Logs db:           docker compose -f docker-compose.prod.yml --env-file .env.prod logs db"
+    echo "  - Reinicio limpio:   docker compose -f docker-compose.prod.yml --env-file .env.prod down --remove-orphans && \" \
+                docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --pull always --force-recreate"
 }
 trap on_error ERR
 
@@ -113,7 +113,7 @@ echo ""
 if [ -d "backups" ]; then
     info "Haciendo backup de BD..."
     BACKUP_FILE="backups/db_backup_$(date +%Y%m%d_%H%M%S).sql.gz"
-    docker compose -f docker-compose.prod.yml exec -T db mysqldump \
+    docker compose -f docker-compose.prod.yml --env-file .env.prod exec -T db mysqldump \
         -u "$DB_USER" \
         -p"$DB_PASSWORD" \
         "$DB_DATABASE" | gzip > "$BACKUP_FILE"
@@ -122,23 +122,23 @@ if [ -d "backups" ]; then
 fi
 
 # Detener servicios antiguos (si existen)
-if docker compose -f docker-compose.prod.yml ps | grep -q "php-app"; then
+if docker compose -f docker-compose.prod.yml --env-file .env.prod ps | grep -q "php-app"; then
     info "Deteniendo servicios antiguos..."
-    docker compose -f docker-compose.prod.yml stop
+    docker compose -f docker-compose.prod.yml --env-file .env.prod stop
     success "Servicios detenidos"
     echo ""
 fi
 
 # Levantar nuevos servicios
 info "Levantando servicios con nueva imagen..."
-docker compose -f docker-compose.prod.yml up -d
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
 echo ""
 
 # Esperar a que estén healthy
 info "Esperando a que los servicios estén listos..."
 for i in {1..60}; do
-    HEALTHY_COUNT=$(docker compose -f docker-compose.prod.yml ps --format json 2>/dev/null | grep -c '"Health":"healthy"' || echo 0)
+    HEALTHY_COUNT=$(docker compose -f docker-compose.prod.yml --env-file .env.prod ps --format json 2>/dev/null | grep -c '"Health":"healthy"' || echo 0)
     if [ "$HEALTHY_COUNT" -ge 2 ]; then
         success "Servicios en estado healthy ($HEALTHY_COUNT/3)"
         break
@@ -155,7 +155,7 @@ echo ""
 
 # Verificación
 info "Verificando deployment..."
-docker compose -f docker-compose.prod.yml ps
+docker compose -f docker-compose.prod.yml --env-file .env.prod ps
 
 echo ""
 
@@ -189,10 +189,10 @@ echo "  BD:       $DB_DATABASE"
 echo "  Usuario:  $DB_USER"
 echo ""
 echo "Comandos útiles:"
-echo "  Ver logs:       docker compose -f docker-compose.prod.yml logs -f"
-echo "  Ver estado:     docker compose -f docker-compose.prod.yml ps"
-echo "  Entrar en bash: docker compose -f docker-compose.prod.yml exec app bash"
-echo "  Detener:        docker compose -f docker-compose.prod.yml down"
+echo "  Ver logs:       docker compose -f docker-compose.prod.yml --env-file .env.prod logs -f"
+echo "  Ver estado:     docker compose -f docker-compose.prod.yml --env-file .env.prod ps"
+echo "  Entrar en bash: docker compose -f docker-compose.prod.yml --env-file .env.prod exec app bash"
+echo "  Detener:        docker compose -f docker-compose.prod.yml --env-file .env.prod down"
 echo ""
 echo "Acceso:"
 echo "  URL: http://localhost (o tu dominio)"
