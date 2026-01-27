@@ -63,7 +63,7 @@
                         echo '<div class="task-item">';
                         echo '<span style="margin-right:10px;">' . $checked . '</span>';
                         echo '<span>' . htmlspecialchars($todo['title']) . '</span>';
-                        echo '<form method="POST" action="api.php?action=toggle" style="display:inline; margin-left:12px;">';
+                        echo '<form method="POST" action="api.php?action=toggle" style="display:inline; margin-left:12px;" onsubmit="toggleTask(event)">';
                         echo '<input type="hidden" name="id" value="' . (int)$todo['id'] . '">';
                         echo '<button type="submit" class="' . $buttonClass . '">' . $buttonLabel . '</button>';
                         echo '</form>';
@@ -95,4 +95,28 @@
         </div>
     </div>
 </body>
+</html>
+<script>
+// Toggle tarea sin abandonar la página: hace fetch al endpoint y recarga si va bien
+async function toggleTask(event) {
+    event.preventDefault();
+    const form = event.target;
+    const data = new FormData(form);
+    try {
+        const response = await fetch('api.php?action=toggle', {
+            method: 'POST',
+            body: data,
+        });
+        const result = await response.json();
+        if (result && result.success) {
+            window.location.reload();
+        } else {
+            alert('No se pudo actualizar la tarea');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error de red al actualizar la tarea');
+    }
+}
+</script>
 </html>
