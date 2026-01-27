@@ -37,6 +37,8 @@ services:
   # Aplicación (PHP-FPM) - Producción
   # ==========================================
   app:
+    # Sintaxis image: o bien se usa la variable de entorno APP_IMAGE (si existe) o sino 
+    # se utiliza ghcr.io con la variable GITHUB_REPOSITORY y APP_VERSION (o latest si no existe)
     image: ${APP_IMAGE:-ghcr.io/${GITHUB_REPOSITORY}/php-app:${APP_VERSION:-latest}}
     container_name: php-app-app-prod
     volumes:
