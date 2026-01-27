@@ -876,7 +876,7 @@ Con la opción `--pull always`, Docker Compose descargará la última versión d
 
 ## Cambiando a Docker Hub
 
-Si prefieres usar Docker Hub en lugar de GitHub Container Registry, ajusta el archivo `deploy.sh`, comentando la sección de GHCR y descomentando la de Docker Hub.
+Si prefieres usar Docker Hub en lugar de GitHub Container Registry, ajusta el archivo `deploy.sh`, comentando la sección de GHCR y descomentando la de Docker Hub. Además, asegúrate de definir las variables `DOCKERHUB_USERNAME` y `DOCKERHUB_TOKEN` en el archivo `.env.prod`.
 
 ## 🎓 Conceptos aprendidos
 
