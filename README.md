@@ -851,7 +851,32 @@ docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
 
 **Regla de oro:** Nunca uses `-v` o `--volumes` en producción a menos que quieras **borrar todos los datos**.
 
----
+## Marcando una versión específica
+
+Si queremos utilizar una versión específica de la imagen (tag), ajusta `APP_VERSION` en `.env.prod`:
+
+```bash
+APP_VERSION=1.0.0
+```
+
+Luego, en el archivo `docker-compose.prod.yml`, la línea de la imagen usará ese tag:
+
+```yaml
+image: ghcr.io/${GITHUB_REPOSITORY}/php-app:${APP_VERSION}
+```
+
+Recuerda bajar el stack y volver a subirlo para aplicar el cambio:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.prod down
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --pull always
+```
+
+Con la opción `--pull always`, Docker Compose descargará la última versión de la imagen con el tag especificado.
+
+## Cambiando a Docker Hub
+
+Si prefieres usar Docker Hub en lugar de GitHub Container Registry, ajusta el archivo `deploy.sh`, comentando la sección de GHCR y descomentando la de Docker Hub.
 
 ## 🎓 Conceptos aprendidos
 

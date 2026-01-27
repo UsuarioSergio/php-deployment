@@ -131,7 +131,7 @@ fi
 
 # Levantar nuevos servicios
 info "Levantando servicios con nueva imagen..."
-docker compose -f docker-compose.prod.yml --env-file .env.prod up -d
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --pull always
 
 echo ""
 
